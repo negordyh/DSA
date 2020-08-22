@@ -45,9 +45,9 @@ public:
     }
 };
 
-int main(int argc, char* argv[]) {
+int main() {
     ifstream ifs;
-	ifs.open(argv[1], ifstream::in);
+	ifs.open("file1.txt");
 	
 	string line;
 

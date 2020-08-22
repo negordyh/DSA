@@ -96,13 +96,16 @@ int main() {
 template <class T>
 void AList<T>::insertSorted(T value, int (*compare)(T a, T b)) {
     //TODO
-    int element = 0;
-    int begin = value.begin();
-    int end = value.end();
-    while ( (begin != end) && (compare(begin,element) < 0 ) ) {
-        ++begin;
+    if(this->size==0) {
+    insertAt(0,value);
+    return;
     }
-    value.insertSorted(begin, element);
+    for(int i=0; i<this->size; i++){
+    if(compare(value,this->storage[i])==0) return;
+    else if(compare(value,this->storage[i])==-1){
+        insertAt(i,value);
+        return;
+    }
     
     }
 

@@ -1,5 +1,14 @@
 {
     "files.associations": {
-        "xutility": "cpp"
-    }
+        "xutility": "cpp",
+        "xstring": "cpp",
+        "stack": "cpp",
+        "cmath": "cpp",
+        "queue": "cpp",
+        "ios": "cpp",
+        "xiosbase": "cpp",
+        "deque": "cpp",
+        "vector": "cpp"
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
