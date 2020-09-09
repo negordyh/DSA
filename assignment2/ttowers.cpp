@@ -4,6 +4,7 @@
 #endif
 
 
+int check = 0;
 KnightTree* rotateRight(KnightTree*& node)
 {
 	KnightTree* temp = node->pLeftChild;
@@ -94,24 +95,19 @@ KnightTree* leftBalance(KnightTree*& node, bool& taller)
 
 	return node;
 }
-KnightTree* insert(KnightTree*& node, int& key, int& level, bool& taller)
+KnightTree* insertAVL(KnightTree*& node, int& key, int& level, bool& taller)
 {
 	if (node == NULL)
 	{
-		node = new KnightTree;
-		node->level = level;
-		node->key = key;
+		node = new KnightTree{key,level,0,NULL,NULL};
 		taller = true;
-		node->pLeftChild = NULL;
-		node->pRightChild = NULL;
-		node->balance = 0;
 		return node;
 	}
 
 	if (key < node->key)
 	{
 		
-		node->pLeftChild = insert(node->pLeftChild, key, level, taller);
+		node->pLeftChild = insertAVL(node->pLeftChild, key, level, taller);
 
 		if (taller)
 		{
@@ -133,8 +129,18 @@ KnightTree* insert(KnightTree*& node, int& key, int& level, bool& taller)
 	}
 	else
 	{
-		if (key == node->key) key++;
-		node->pRightChild = insert(node->pRightChild, key, level, taller);
+		if (key == node->key) {
+			key++;
+			//add same BSTinsert
+			if (key == 777) key++;
+			else if (key == 888) key++;
+			else if (key == 999) key++;
+		}
+		if (key != 1000 && key != 998)
+		{
+			node->pRightChild = insertAVL(node->pRightChild, key, level, taller);
+		}
+		//
 
 		if (taller)
 		{
@@ -157,7 +163,7 @@ KnightTree* insert(KnightTree*& node, int& key, int& level, bool& taller)
 
 	return node;
 }
-KnightTree* BSTinsert(KnightTree*& node, int& key, int& level)
+KnightTree* insertBST(KnightTree*& node, int& key, int& level)
 {
 	if (node == NULL)
 	{
@@ -171,14 +177,19 @@ KnightTree* BSTinsert(KnightTree*& node, int& key, int& level)
 	}
 	if (key < node->key)
 	{
-		 BSTinsert(node->pLeftChild, key, level);
+		 insertBST(node->pLeftChild, key, level);
 	}
 	else
 	{
-		if (key == node->key) key++;
+		if (key == node->key) {
+			key++;
+			if (key == 777) key++;
+			else if (key == 888) key++;
+			else if (key == 999) key++;
+		}
 		if (key != 1000 && key != 998)
 		{
-			BSTinsert(node->pRightChild, key, level);
+			insertBST(node->pRightChild, key, level);
 		}
 		else
 		{
@@ -301,7 +312,7 @@ KnightTree* removeLeftBalance(KnightTree*& node, bool& shorter)
 	}
 	return node;
 }
-KnightTree* removeNode(KnightTree*& node, int& key, bool& shorter, bool& success)
+KnightTree* removeAVL(KnightTree*& node, int& key, bool& shorter, bool& success)
 {
 	// TODO
 	if (node == NULL)
@@ -312,7 +323,7 @@ KnightTree* removeNode(KnightTree*& node, int& key, bool& shorter, bool& success
 	}
 	if (key < node->key)
 	{
-		node->pLeftChild = removeNode(node->pLeftChild, key, shorter, success);
+		node->pLeftChild = removeAVL(node->pLeftChild, key, shorter, success);
 		if (shorter)
 		{
 			node = removeRightBalance(node, shorter);
@@ -320,7 +331,7 @@ KnightTree* removeNode(KnightTree*& node, int& key, bool& shorter, bool& success
 	}
 	else if (key > node->key)
 	{
-		node->pRightChild = removeNode(node->pRightChild, key, shorter, success);
+		node->pRightChild = removeAVL(node->pRightChild, key, shorter, success);
 		if (shorter)
 		{
 			node = removeLeftBalance(node, shorter);
@@ -331,19 +342,19 @@ KnightTree* removeNode(KnightTree*& node, int& key, bool& shorter, bool& success
 		KnightTree* deleteNode = node;
 		if (node->pRightChild == NULL)
 		{
-			KnightTree* newRoot = node->pLeftChild;
+			node = node->pLeftChild;
 			success = true;
 			shorter = true;
 			delete deleteNode;
-			return newRoot;
+			return node;
 		}
 		else if (node->pLeftChild == NULL)
 		{
-			KnightTree* newRoot = node->pRightChild;
+			node = node->pRightChild;
 			success = true;
 			shorter = true;
 			delete deleteNode;
-			return newRoot;
+			return node;
 		}
 		else
 		{
@@ -353,16 +364,49 @@ KnightTree* removeNode(KnightTree*& node, int& key, bool& shorter, bool& success
 				exchPtr = exchPtr->pLeftChild;
 			}
 			node->key = exchPtr->key;
-			node->level = exchPtr->level;;
-			node->pRightChild = removeNode(node->pRightChild, exchPtr->key, shorter, success);
+			node->level = exchPtr->level;
+			node->pRightChild = removeAVL(node->pRightChild, exchPtr->key, shorter, success);
 			if (shorter)
 			{
-				node = removeRightBalance(node, shorter);
+				node = removeLeftBalance(node, shorter);
 			}
 		}
 
 	}
 	return node;
+}
+void removeBST(KnightTree*& root, int value)
+{
+	if (root == NULL) return;
+	if (root->key < value)
+		return removeBST(root->pRightChild, value);
+	if (root->key > value)
+		return removeBST(root->pLeftChild, value);
+	if (root->key == value) {
+		if (root->pLeftChild == NULL)
+		{
+			KnightTree* tmp = root;
+			root = root->pRightChild;
+			delete tmp;
+			tmp = NULL;
+		}
+		else if (root->pRightChild == NULL)
+		{
+			KnightTree* tmp = root;
+			root = root->pLeftChild;
+			delete tmp;
+			tmp = NULL;
+		}
+		else
+		{
+			KnightTree* tNode = root->pRightChild;
+			while (tNode->pLeftChild != NULL)
+				tNode = tNode->pLeftChild;
+			root->key = tNode->key;
+			removeBST(root->pRightChild, tNode->key);
+		}
+		return;
+	}
 }
 
 int getLeaf(KnightTree* node)
@@ -397,7 +441,6 @@ int countNumNodes(KnightTree* node) {
 		return (0);
 	return (1 + countNumNodes(node->pLeftChild) + countNumNodes(node->pRightChild));
 }
-
 bool checkComplete(KnightTree* node, int index, int numberNodes) {
 	if (node == NULL)
 		return true;
@@ -409,24 +452,143 @@ bool checkComplete(KnightTree* node, int index, int numberNodes) {
 			checkComplete(node->pRightChild, 2 * index + 2, numberNodes));
 }
 
+
 int hiepSi(eventList* pEvent, int& key, int& level) {
 	level = pEvent->nEventCode % 10;
 	key = pEvent->nEventCode / 10 % 1000; 
 	
 	return 0;
 }
-KnightTree* insert777(KnightTree* node, KnightTree* Aragorn777)
+void insert777(KnightTree* node, KnightTree*& Aragorn777)
 {
-	if (node == NULL) return Aragorn777;
-	BSTinsert(Aragorn777, node->key, node->level);
-	
-
+	if (node == NULL) return;
 	//NLR
-	
+	insertBST(Aragorn777, node->key, node->level);
 	insert777(node->pLeftChild, Aragorn777);
 	insert777(node->pRightChild, Aragorn777);
-	return Aragorn777;
 }
+void insert999(KnightTree* node, KnightTree*& Gandalf999) {
+	if (node == NULL) return;
+	bool taller = true;
+	//RNL
+	insert999(node->pRightChild, Gandalf999);
+	insertAVL(Gandalf999, node->key, node->level, taller);
+	insert999(node->pLeftChild, Gandalf999);
+}
+
+KnightTree *Legolas(KnightTree* node)
+{
+	KnightTree static* arr;
+	static int i = 0;
+	if (node == NULL) return NULL;
+	else
+	{
+		Legolas(node->pLeftChild);
+		if (arr == NULL)
+		{
+			arr = new KnightTree;
+			arr->key = node->key;
+			arr->level = node->level;
+			arr->pLeftChild = arr->pRightChild = NULL;
+			
+		}
+		else
+		{
+			static KnightTree* temp = arr;
+
+			temp->pRightChild = new KnightTree;
+			temp = temp->pRightChild;
+			temp->key = node->key;
+			temp->level = node->level;
+			temp->pLeftChild = temp->pRightChild = NULL;
+			
+		}
+		Legolas(node->pRightChild);
+	}
+	return arr;
+}
+KnightTree* insert888(KnightTree* node, KnightTree* Legolas888) {
+	KnightTree* arr = Legolas(node);
+	KnightTree* temp = arr;
+	if (Legolas888->key < arr->key)
+	{
+		Legolas888->pRightChild = arr;
+		arr = Legolas888;
+		return arr;
+	}
+	while (temp->pRightChild != NULL)
+	{
+		if (Legolas888->key < temp->pRightChild->key)
+		{
+			Legolas888->pRightChild = temp->pRightChild;
+			temp->pRightChild = Legolas888;
+			return arr;
+		}
+		temp = temp->pRightChild;
+	}
+	temp->pRightChild = Legolas888;
+
+	return arr;
+}
+KnightTree* leftTree(KnightTree* arr, int k)
+{
+	KnightTree* temp = arr;
+	KnightTree* node = NULL;
+	float i = 0;
+	k--;
+	
+	while (i != (int)k / 2)
+	{
+		bool taller = true;
+		insertAVL(node, temp->key, temp->level, taller);
+		temp = temp->pRightChild;
+		i++;
+	}
+	return node;
+}
+KnightTree* rightTree(KnightTree* arr, int k)
+{
+	KnightTree* temp = arr;
+	KnightTree* node = NULL;
+	int i = 0;
+	k--;
+	while (i != k / 2+1)
+	{
+		temp = temp->pRightChild;
+		i++;
+	}
+	
+	while (i != k+1)
+	{
+		bool taller = true;
+		insertAVL(node, temp->key, temp->level, taller);
+		i++;
+		temp = temp->pRightChild;
+	}
+	return node;
+}
+KnightTree* getMidNode(KnightTree* arr, int k)
+{
+	k--;
+	int static i = k / 2;
+	static KnightTree* temp = arr;
+	while (i != 0)
+	{
+		temp = temp->pRightChild;
+		i--;
+	}
+	static KnightTree* node = new KnightTree;
+	node->key = temp->key;
+	node->level = temp->level;
+	
+	node->balance = 0;
+	node->pLeftChild = leftTree(arr, ++k);
+	node->pRightChild = rightTree(arr, k);
+	
+	return node;
+}
+
+
 void plusLevel(KnightTree*& node, int key)
 {
 	KnightTree* temp = node;
@@ -460,7 +622,8 @@ void plusLevel(KnightTree*& node, int key)
 	temp->level++;
 
 }
-KnightTree* gapQuaiVat(eventList* pEvent, KnightTree*& node, int& key, int &level) {
+KnightTree* gapQuaiVat(eventList* pEvent, KnightTree*& node, int& key, int& level) {
+	if (node == NULL) return NULL;
 	int key_QV = abs(pEvent->nEventCode / 10);
 	int level_QV = abs(pEvent->nEventCode % 10);
 
@@ -471,7 +634,7 @@ KnightTree* gapQuaiVat(eventList* pEvent, KnightTree*& node, int& key, int &leve
 	while (temp != NULL)
 	{
 		if (key_QV == temp->key) { p = temp->key; break; }
-		else if (key > temp->key)
+		else if (key_QV > temp->key)
 		{
 			if ((abs(temp->key - key_QV)) < k) p = temp->key;
 			temp = temp->pRightChild;
@@ -483,6 +646,69 @@ KnightTree* gapQuaiVat(eventList* pEvent, KnightTree*& node, int& key, int &leve
 			temp = temp->pLeftChild;
 
 		}
+
+	}
+	temp = node;
+	while (p != temp->key)
+	{
+		
+		if (p > temp->key) temp = temp->pRightChild;
+		else temp = temp->pLeftChild;
+	}
+
+		if (check == 7 && node->level == level_QV) return node;
+		if (temp->level < level_QV) {
+			if (node->key == 777 || node->key == 888 || node->key == 999) check = 0;
+			if (check == 9) {
+				bool shorter = true;
+				bool success = true;
+				removeAVL(node, p, shorter, success);
+			}
+			else {
+				removeBST(node, p);
+			}
+			if (node == NULL) return NULL;
+			if (node->key == 777)  check = 7;
+			if (key_QV == 888) gapQuaiVat(pEvent, node, p, level);
+		}
+
+		if (key_QV == 777)
+		{
+			if (getLeaf(node) == key_QV)
+			{
+				if (getDepth(node) >= level_QV)
+				{
+					removeBST(node, p);
+				}
+			}
+		}
+		
+	return node;
+}
+
+KnightTree* gapGla(eventList* pEvent, KnightTree*& node, int& key, int& level) {
+	int key_Gla = pEvent->nEventCode % 1000;
+
+	KnightTree* temp = node;
+	int p = node->key;
+	int k = abs(node->key - key);
+
+	while (temp != NULL)
+	{
+		if (key_Gla == temp->key) { p = temp->key; break; }
+		else if (key_Gla > temp->key)
+		{
+			if ((abs(temp->key - key_Gla)) < k) p = temp->key;
+			temp = temp->pRightChild;
+
+		}
+		else if (key_Gla < temp->key)
+		{
+			if ((abs(temp->key - key_Gla)) < k) p = temp->key;
+			temp = temp->pLeftChild;
+
+		}
+
 	}
 	temp = node;
 	while (p != temp->key)
@@ -491,129 +717,129 @@ KnightTree* gapQuaiVat(eventList* pEvent, KnightTree*& node, int& key, int &leve
 		else temp = temp->pLeftChild;
 	}
 
-	if (key != 777) {
-		if (key_QV == 777) {
-			if (getLeaf(node) == key_QV) 
-			{
-				bool shorter = true;
-				bool success = true;
-				if (getDepth(node) >= level_QV)
-				{
-					node = removeNode(node, temp->key, shorter, success);
-				}
-			}
-			else return NULL;
-		}
-
-		else {
-			if (temp->level >= level_QV) return NULL;
-			else {
-				bool shorter = true;
-				bool success = true;
-				node = removeNode(node, temp->key, shorter, success);
-			}
-		}
-	}
-
-	else {
-		if (temp->level == level_QV) return NULL;
-		else {
-			bool shorter = true;
-			bool success = true;
-			node = removeNode(node, temp->key, shorter, success);
-		}
-	}
-
-	// BUG CMNR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	if (key_QV == 888)
-	{
-		if (temp->level >= level_QV) return NULL;
-		else
-		{
-			KnightTree* temp = node;
-			int p = node->key;
-			int k = abs(node->key - key);
-
-			while (temp != NULL)
-			{
-				if (key_QV == temp->key) { p = temp->key; break; }
-				else if (key > temp->key)
-				{
-					if ((abs(temp->key - key_QV)) < k) p = temp->key;
-					temp = temp->pRightChild;
-
-				}
-				else if (key_QV < temp->key)
-				{
-					if ((abs(temp->key - key_QV)) < k) p = temp->key;
-					temp = temp->pLeftChild;
-
-				}
-			}
-			temp = node;
-			while (p != temp->key)
-			{
-				if (p > temp->key) temp = temp->pRightChild;
-				else temp = temp->pLeftChild;
-			}
-				do
-				{
-					bool shorter = true;
-					bool success = true;
-					node = removeNode(node, temp->key, shorter, success);
-				}  while (temp->level >= level_QV);
-		}
-	}
-
+	if (temp->level != 9) temp->level = 9;
 	return node;
 }
 
+bool checkNodeEqual(KnightTree* node, int k)
+{
+	if (node == NULL) return 0;
+	if (node->level == k) return 1;
+	checkNodeEqual(node->pLeftChild, k);
+	checkNodeEqual(node->pRightChild, k);
+	return 0;
+}
+KnightTree* assignZero(KnightTree* node)
+{
+	if (node == NULL) return NULL;
+	node->level = 0;
+	assignZero(node->pLeftChild);
+	assignZero(node->pRightChild);
+}
+KnightTree* SarumanExit(KnightTree* pTree, int k)
+{
+	bool c = 1;
+	while (k != 0)
+	{
+		int i = k % 10;
+		k /= 10;
+		 c = checkNodeEqual(pTree, i);
+		 if (c == 0) return pTree;
+	}
+	assignZero(pTree);
+	return pTree;
+}
+int checkKey(int key, KnightTree* node, KnightTree* Tree) 
+{
+	if (node == NULL) return key;
+	if (key == node->key) {
+		key++;
+		if (key == 888 || key == 777 || key == 999) key++;
+		return checkKey(key, Tree, Tree);
+	}
+	if (key < node->key)return checkKey(key, node->pLeftChild, Tree);
+	if (key > node->key)return checkKey(key, node->pRightChild, Tree);
+
+}
 KnightTree* siege(eventList* pEvent, ringsignList* pSarumanList)
 {
 	KnightTree* pTree = NULL;
 	//let's save the lady
-
 	while (pEvent != NULL)
 	{
 		int key, level = 0;
-
 		//case: -XYZL (gap quaiVat)
 		if (pEvent->nEventCode < 0) {
 			gapQuaiVat(pEvent, pTree, key, level);
 		}
-
+		
+		
 		//case: 1XYZL (hiepSi)
-		else if (pEvent->nEventCode / 10000 == 1) {
+		if (pEvent->nEventCode / 10000 == 1)
+		{
 			hiepSi(pEvent, key, level);
+			key = checkKey(key, pTree, pTree);
 			bool taller = true;
+			if (key == 777) check = 7;
+			if (key==888) check = 8;
+			if (key == 999) check = 9;
+			if (key == 777 || key == 888 || key == 999)
+			{
 
-			//Aragon
-			if (key == 777) {
-				KnightTree* knight777 = new KnightTree;
-				knight777->key = key;
-				knight777->level = level;
-				knight777->pLeftChild = knight777->pRightChild = NULL;
-				knight777->balance = 0;
+				//Aragon
+				if (key == 777) {
+					KnightTree* knight777 = new KnightTree{ key,level,0,NULL,NULL };
+					insert777(pTree, knight777);
+					pTree = knight777;
+				}
+
+				//Gandalf
+				if (key == 999) {
+					KnightTree* knight999 = new KnightTree{ key,level,0,NULL,NULL };
+					insert999(pTree, knight999);
+					pTree = knight999;
+				}
+				//Legolas
+				if (key == 888) {
+					int count = countNumNodes(pTree);
+					KnightTree* knight888 = new KnightTree{ key,level,0,NULL,NULL };
+					KnightTree* p = insert888(pTree, knight888); count++;
+					pTree = getMidNode(p, count);
+				}
 				
-				pTree = insert777(pTree, knight777);
 			}
 
-			//Gimli
-			else if (key == 0) {
+			//GIMLI
+			else if (key == 0) 
+			{
 				int node_count = countNumNodes(pTree);
 				int node_height = getHeight(pTree);
 
-				if (node_count == pow(2, node_height) - 1);
-				else BSTinsert(pTree, key, level);
+				if (node_count != pow(2, node_height) - 1)
+				{
+					insertAVL(pTree, key, level, taller);
+					if (pTree->key == 777)
+					{
+						check = 7;
+					}
+				}
+
 			}
 
-			//Gandalf
-
-			//Legolas
-
-
 			else
-			BSTinsert(pTree, key, level);
+			{
+				if (check!=9)
+					insertBST(pTree, key, level);
+				else 
+				{
+					bool taller = true;
+					insertAVL(pTree, key, level, taller);
+					if (pTree->key == 777)
+					{
+						check = 7;
+					}
+				}
+			}
 		}
 
 		//case: 2XYZ (hiepsi giaicuu quacau)
@@ -621,22 +847,19 @@ KnightTree* siege(eventList* pEvent, ringsignList* pSarumanList)
 			key = pEvent->nEventCode % 1000;
 			plusLevel(pTree, key);
 		}
-
 		//case: 3XYZ (gap Gla)
 		else if (pEvent->nEventCode / 1000 == 3) {
-			level = 9;
+			gapGla(pEvent, pTree, key, level);
 		}
-
 		//case: 5 (Saruman chaytron)
 		else if (pEvent->nEventCode == 5)
 		{
-			
+			SarumanExit(pTree, level);
 		}
 
 		if (pTree == NULL) return NULL;
 		pEvent = pEvent->pNext;
 	}
-	
 	return pTree;
 }
 
